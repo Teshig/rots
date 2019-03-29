@@ -12,7 +12,6 @@ public class EventStore {
     private List<LogObject> eventStore = new ArrayList<>();
 
     public void addEvent(StatusEntity event) {
-        reniewStore(event);
         objectStore.add(event);
     }
 

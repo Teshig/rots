@@ -25,12 +25,12 @@ public class EventStoreService {
         StatusEntity lastEvent = store.getLastEvent();
 
         ModelObject modelObject = new ModelObject();
-        String roomStatus = extractCurrentStatus(lastEvent);
+        Boolean roomStatus = extractCurrentStatus(lastEvent);
         modelObject.setRoomStatus(roomStatus);
 
-        List<LogObject> logs = store.getLogs();
-        String lastActivity = extractLastActivity(logs);
-        modelObject.setLastActivity(lastActivity);
+        // List<LogObject> logs = store.getLogs();
+        //String lastActivity = extractLastActivity(logs);
+        //modelObject.setLastActivity(lastActivity);
 
         return modelObject;
     }
@@ -42,20 +42,30 @@ public class EventStoreService {
 
         LogObject log = logs.get(logs.size() - 1);
 
-        return "Previous time room was busy since " + log.getBusySince() + " up to " + log.getBusyUpTo();
+        return log.getBusySince().toString();
     }
 
-    private String extractCurrentStatus(StatusEntity lastEvent) {
+    private String extractLastActivity2(List<LogObject> logs) {
+        if (logs.isEmpty()){
+            return "Today room wasn't busy! Miracle!";
+        }
+
+        LogObject log = logs.get(logs.size() - 1);
+
+        return log.getBusyUpTo().toString();
+    }
+
+    private boolean extractCurrentStatus(StatusEntity lastEvent) {
         if (lastEvent == null) {
-          return "Room is free!";
+          return false;
         }
         Duration duration = Duration.between(lastEvent.getEventTime(), LocalDateTime.now());
 
         long pastSeconds = duration.getSeconds();
-        if (TIME_OUT_GAP - pastSeconds < 0) {
-            return "Room is busy!";
+        if (TIME_OUT_GAP - pastSeconds > 0) {
+            return true;
         }
 
-        return "Room is free!";
+        return false;
     }
 }

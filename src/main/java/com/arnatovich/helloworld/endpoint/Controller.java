@@ -90,7 +90,8 @@ public class Controller {
     @GetMapping("/info")
     public String getInfo() throws IOException {
         ClassPathResource resource;
-        if (true) { // Busy?
+        Boolean flag =  service.getRoomStatus().getRoomStatus();
+        if (!flag) { // Busy?
             //busy
             resource = new ClassPathResource("html/busy.html");
         } else {

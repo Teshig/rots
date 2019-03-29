@@ -6,6 +6,6 @@ import lombok.ToString;
 @Data
 @ToString
 public class ModelObject {
-    private String roomStatus;
+    private Boolean roomStatus;
     private String lastActivity;
 }
