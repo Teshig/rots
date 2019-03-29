@@ -2,7 +2,22 @@ package com.arnatovich.helloworld.endpoint;
 
 import com.arnatovich.helloworld.valueobject.StatusEntity;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.StreamUtils;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.stream.Collectors;
 
 @RestController
 @Slf4j
@@ -53,5 +68,39 @@ public class Controller {
             response = new BaseResponse(ERROR_STATUS, AUTH_FAILURE);
         }
         return response;
+    }
+
+    @GetMapping(value = "/gif/{image}", produces = MediaType.IMAGE_GIF_VALUE)
+    public ResponseEntity<byte[]> getGifImage(@PathVariable String image) throws IOException {
+        ClassPathResource resource = new ClassPathResource("images/gif/" + image);
+        byte[] bytes = StreamUtils.copyToByteArray(resource.getInputStream());
+        return ResponseEntity.ok().contentType(MediaType.IMAGE_GIF).body(bytes);
+    }
+
+    @GetMapping(value = "/png/{image}", produces = MediaType.IMAGE_PNG_VALUE)
+    public ResponseEntity<byte[]> getPNGImage(@PathVariable String image) throws IOException {
+        ClassPathResource resource = new ClassPathResource("images/png/" + image);
+        byte[] bytes = StreamUtils.copyToByteArray(resource.getInputStream());
+        return ResponseEntity.ok().contentType(MediaType.IMAGE_PNG).body(bytes);
+    }
+
+    @GetMapping("/info")
+    public String getInfo() throws IOException {
+        ClassPathResource resource;
+        if (true) { // Busy?
+            //busy
+            resource = new ClassPathResource("html/busy.html");
+        } else {
+            //not busy
+            resource = new ClassPathResource("html/free.html");
+        }
+
+        String result = "error";
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(resource.getInputStream()))) {
+            result = br.lines().collect(Collectors.joining(System.lineSeparator()));
+        }
+        result = result.replace("${from_time}", "15:45");
+
+        return result;
     }
 }
