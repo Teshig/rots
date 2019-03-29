@@ -1,5 +1,6 @@
 package com.arnatovich.helloworld.endpoint;
 
+import com.arnatovich.helloworld.services.EventStoreService;
 import com.arnatovich.helloworld.valueobject.StatusEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +16,8 @@ public class Controller {
     private static final int CODE_SUCCESS = 100;
     private static final int AUTH_FAILURE = 102;
 
+    private final EventStoreService service = new EventStoreService();
+
     @GetMapping()
     public BaseResponse showStatus() {
         return new BaseResponse(SUCCESS_STATUS, 1);
@@ -22,7 +25,7 @@ public class Controller {
 
     @GetMapping("/status")
     public String sendStatus() {
-        return "<html><body><h1>YEAH!!!</h1></body></html>";
+        return "<html><body><h1>Current status: -> " + service.getRoomStatus().getRoomStatus() + "</h1><br /><h3>" + service.getRoomStatus().getLastActivity() + "</h3></body></html>";
     }
 
     @GetMapping("/occupy")
@@ -32,7 +35,7 @@ public class Controller {
 
     @PostMapping("/occupy")
     public String occupyRoom(@RequestBody StatusEntity entity) {
-        log.info(entity.toString());
+        service.addEvent(entity);
         return "Room is occupied successfully";
     }
 
