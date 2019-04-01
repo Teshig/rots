@@ -6,7 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 
 @Data
 @Builder(toBuilder = true)
@@ -18,5 +18,5 @@ public class StatusEntity {
     private Boolean isRoomOccupied;
 
     @JsonProperty("eventTime")
-    private LocalDateTime eventTime;
+    private Date eventTime;
 }

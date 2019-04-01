@@ -1,6 +1,7 @@
 package com.arnatovich.helloworld.endpoint;
 
 import com.arnatovich.helloworld.services.EventStoreService;
+import com.arnatovich.helloworld.services.ViewModel;
 import com.arnatovich.helloworld.valueobject.StatusEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
@@ -12,65 +13,36 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Date;
 import java.util.stream.Collectors;
 
 @RestController
 @Slf4j
 @RequestMapping("/rots")
 public class Controller {
-    private final String sharedKey = "SHARED_KEY";
-
-    private static final String SUCCESS_STATUS = "success";
-    private static final String ERROR_STATUS = "error";
-    private static final int CODE_SUCCESS = 100;
-    private static final int AUTH_FAILURE = 102;
 
     private final EventStoreService service = new EventStoreService();
 
-    @GetMapping()
-    public BaseResponse showStatus() {
-        return new BaseResponse(SUCCESS_STATUS, 1);
-    }
-
     @GetMapping("/status")
     public String sendStatus() {
-        return "<html><body><h1>Current status: -> " + service.getRoomStatus().getRoomStatus() + "</h1><br /><h3>" + service.getRoomStatus().getLastActivity() + "</h3></body></html>";
+        final ViewModel viewModel = service.getViewModel();
+        return "<html><body><h1>Current status: -> " + viewModel.isOccupied() + "</h1><br><h3>" + viewModel.getFromTime() + "</h3></body></html>";
     }
 
     @GetMapping("/occupy")
     public String occupyRoomGet() {
-        return "Room is occupied successfully";
+        return "Room has NOT been occupied! Use POST request.";
     }
 
     @PostMapping("/occupy")
     public String occupyRoom(@RequestBody StatusEntity entity) {
-        service.addEvent(entity);
+        service.addStatus(entity);
         return "Room is occupied successfully";
-    }
-
-    @PostMapping("/pay")
-    public BaseResponse pay(@RequestParam(value = "key") String key, @RequestBody Request request) {
-
-        final BaseResponse response;
-
-        if (sharedKey.equalsIgnoreCase(key)) {
-            int userId = request.getUserId();
-            String itemId = request.getItemId();
-            double discount = request.getDiscount();
-            // Process the request
-            // ....
-            // Return success response to the client.
-            response = new BaseResponse(SUCCESS_STATUS, CODE_SUCCESS);
-        } else {
-            response = new BaseResponse(ERROR_STATUS, AUTH_FAILURE);
-        }
-        return response;
     }
 
     @GetMapping(value = "/gif/{image}", produces = MediaType.IMAGE_GIF_VALUE)
@@ -90,12 +62,10 @@ public class Controller {
     @GetMapping("/info")
     public String getInfo() throws IOException {
         ClassPathResource resource;
-        Boolean flag =  service.getRoomStatus().getRoomStatus();
-        if (!flag) { // Busy?
-            //busy
+        ViewModel model = service.getViewModel();
+        if (model.isOccupied()) {
             resource = new ClassPathResource("html/busy.html");
         } else {
-            //not busy
             resource = new ClassPathResource("html/free.html");
         }
 
@@ -103,7 +73,8 @@ public class Controller {
         try (BufferedReader br = new BufferedReader(new InputStreamReader(resource.getInputStream()))) {
             result = br.lines().collect(Collectors.joining(System.lineSeparator()));
         }
-        result = result.replace("${from_time}", "15:45");
+        final Date fromTime = model.getFromTime();
+        result = result.replace("${from_time}", fromTime == null ? "" : fromTime.toString());
 
         return result;
     }

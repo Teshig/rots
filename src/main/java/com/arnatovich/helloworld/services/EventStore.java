@@ -2,7 +2,6 @@ package com.arnatovich.helloworld.services;
 
 import com.arnatovich.helloworld.valueobject.StatusEntity;
 
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,7 +11,8 @@ public class EventStore {
     private List<LogObject> eventStore = new ArrayList<>();
 
     public void addEvent(StatusEntity event) {
-        objectStore.add(event);
+//        objectStore.add(event);
+
     }
 
     public StatusEntity getLastEvent() {
@@ -26,6 +26,7 @@ public class EventStore {
         return new ArrayList<>(eventStore);
     }
 
+/*
     private void reniewStore(StatusEntity newEvent) {
         if (objectStore.isEmpty()) {
             return;
@@ -35,16 +36,19 @@ public class EventStore {
         Duration duration = Duration.between(previousEntity.getEventTime(), newEvent.getEventTime());
 
         long pastSeconds = duration.getSeconds();
-        if (TIME_OUT_GAP - pastSeconds < 0) {
+        if (TIME_OUT_GAP > pastSeconds) {
             updateLogs(previousEntity, objectStore.get(0));
             updateStore(newEvent);
         }
     }
+*/
 
+/*
     private void updateLogs(StatusEntity last, StatusEntity first) {
         LogObject log = new LogObject(last.getEventTime(), first.getEventTime());
         eventStore.add(log);
     }
+*/
 
     private void updateStore(StatusEntity newEvent) {
         objectStore = new ArrayList<>();
