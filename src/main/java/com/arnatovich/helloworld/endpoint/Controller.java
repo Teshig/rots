@@ -58,6 +58,7 @@ public class Controller {
     public String getInfo() throws IOException {
         ClassPathResource resource;
         ViewModel model = service.getViewModel();
+        log.info("info has been requested. Model > " + model);
         if (model.isOccupied()) {
             resource = new ClassPathResource("html/busy.html");
         } else {
