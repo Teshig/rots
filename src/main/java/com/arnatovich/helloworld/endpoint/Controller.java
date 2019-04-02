@@ -34,11 +34,6 @@ public class Controller {
         return "<html><body><h1>Current status: -> " + viewModel.isOccupied() + "</h1><br><h3>" + viewModel.getFromTime() + "</h3></body></html>";
     }
 
-    @GetMapping("/occupy")
-    public String occupyRoomGet() {
-        return "Room has NOT been occupied! Use POST request.";
-    }
-
     @PostMapping("/occupy")
     public String occupyRoom(@RequestBody StatusEntity entity) {
         service.addStatus(entity);
