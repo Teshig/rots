@@ -34,11 +34,6 @@ public class Controller {
         return "<html><body><h1>Current status: -> " + viewModel.isOccupied() + "</h1><br><h3>" + viewModel.getFromTime() + "</h3></body></html>";
     }
 
-    @GetMapping("/occupy")
-    public String occupyRoomGet() {
-        return "Room has NOT been occupied! Use POST request.";
-    }
-
     @PostMapping("/occupy")
     public String occupyRoom(@RequestBody StatusEntity entity) {
         service.addStatus(entity);
@@ -63,6 +58,7 @@ public class Controller {
     public String getInfo() throws IOException {
         ClassPathResource resource;
         ViewModel model = service.getViewModel();
+        log.info("info has been requested. Model > " + model);
         if (model.isOccupied()) {
             resource = new ClassPathResource("html/busy.html");
         } else {
