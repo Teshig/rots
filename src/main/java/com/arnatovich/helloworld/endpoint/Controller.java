@@ -18,7 +18,11 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.ZoneId;
 import java.util.Date;
+import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 @RestController
@@ -69,8 +73,17 @@ public class Controller {
         try (BufferedReader br = new BufferedReader(new InputStreamReader(resource.getInputStream()))) {
             result = br.lines().collect(Collectors.joining(System.lineSeparator()));
         }
-        final Date fromTime = model.getFromTime();
-        result = result.replace("${from_time}", fromTime == null ? "" : fromTime.toString());
+
+        Date fromTime = model.getFromTime();
+        if (fromTime != null) {
+            DateFormat formatter = new SimpleDateFormat("dd MMMM HH:mm");
+            formatter.setTimeZone(TimeZone.getTimeZone(ZoneId.of("GMT+3")));
+            String date = formatter.format(fromTime);
+            System.out.println(date);
+            result = result.replace("${from_time}", date);
+        } else {
+            result = result.replace(" from ${from_time}", "");
+        }
 
         return result;
     }
