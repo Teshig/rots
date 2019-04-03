@@ -35,6 +35,9 @@ public class EventStoreService {
             Date now = new Date();
             Date eventTime = statusDAO.getLastStatus().getEventTime();
             isOccupied = now.getTime() < eventTime.getTime() + TIME_THRESHOLD;
+            if (!isOccupied) {
+                fromTime = statusDAO.getLastStatus().getEventTime();
+            }
         }
         return new ViewModel(isOccupied, fromTime, null);
     }
